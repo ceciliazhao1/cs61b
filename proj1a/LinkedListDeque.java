@@ -122,7 +122,7 @@ public class LinkedListDeque<T> {
         return tmp.item;
     }
 
-    public T getRecursion(int index) { // method List
+    public T getRecursive(int index) { // method List
         if (index >= size) {
             return null;
         }

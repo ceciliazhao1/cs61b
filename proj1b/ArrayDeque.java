@@ -1,85 +1,86 @@
 public class ArrayDeque<T> {
-    public class Node {
-        public T[] item;
+        public T[] items;
         private int left;
-    private int right;
-    private int capacity = 8;
+        private int right;
+        private int capacity = 8;
 
 
-        public Node(T i, LinkedListDeque<T>.Node n, LinkedListDeque<T>.Node p) {
-            item = i;
-            next = n;
-            prev = p;
+        
+        public ArrayDeque() {
+            items = (T[]) new Object[capacity];
+            left = right = 0;
         }
+    
+    public boolean isFull(){
+        return size()==capacity-1;
+    }
+    public int size(){
+        int size= (right-left+capacity)%capacity;
+        return size;
+    }
+    public boolean isEmpty(){
+        return left==right;
     }
 
-    Node head; //sentinel
-    Node tail; //sentinel
+    public void resize(int newcapacity){
+        T[] newarray=(T[]) new Object[capacity];
+        int size=size();
+        if(left<right)
+            for(int i=left,j=0;i<right && j<size;i++,j++)
+                newarray[j]=items[i];
+        else if (left>right){
+            int j=0;
+            for(int i=left;j<capacity-left;i++,j++)
+                newarray[j]=items[i];
+            for (int i=0;j<size;i++,j++)
+                newarray[j]=items[i];
+        }
+        left=0;
+        right=size;
+        items=newarray;
+        capacity=newcapacity;
 
-    // 0 -> 1 -> 2 - > 3  head = 0; tail = 3
-    // 0 head = 0 tail = Null
-    // head = null tail = null
-    // sentinel / dummy head
-    // 香肠
-    // (0) -> 0 -> 1 -> 2 -> (0)
-    // (0) -> (0)
-    int size;
-
-    public ArrayDeque() {
-        size = 0;
-        head = new Node(null, null, null); // (0) : head
-        tail = new Node(null, null, null); // (0) : tail
-
-        head.next = tail; // (0 head) -> (0 tail)
-        tail.prev = head; // (0 head) <- (0 tail)
     }
 
     public void addFirst(T item) {
-        // (0 head) -> (0 tail)
-        // addFirst(1)
-        // (0 head) -> (1) -> (0 tail)
-        size++;
-        Node node = new Node(item, head.next, head);
-        head.next.prev = node;
-        head.next = node;
-        //        (3)
-        //       /    \
-        //(0 head) -> (1) -> (2) -> (0 tail)
-
-        // (0 head) -> (1) -> (2) -> (0 tail)
-        // addFirst(3)
-        // (0 head) -> (3) -> (1) -> (2) -> (0 tail)
+        if(isFull())
+            resize((int)(capacity *1.5));
+        left=(left-1+capacity)/capacity;
+        items[left]=item;
     }
 
     public void addLast(T item) {
-        // (0 head) <-> (1) <-> (2) <-> (0 tail)
-        // addLast(3)
-        // (0 head) <-> (1) -> (2) <-> (3) <-> (0 tail)
-        size++;
-        Node node = new Node(item, tail, tail.prev);
-        tail.prev.next = node;
-        tail.prev = node;
+        if(isFull())
+            resize((int)(capacity *1.5));
+        items[right]=item;
+        right=(right+1+capacity)%capacity;
     }
 
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    public int size() {
-        return size;
-    }
     public void printDeque() {
-        if (isEmpty()) {
-            return;
+
+        if(left<right)
+            for (int i = left; i < right; i++) {
+                if(i==right-1){
+                    System.out.print(items[i]);
+                    break;
+                }
+                System.out.print(items[i]);
+                System.out.print(" ");
+            }
+        else if (left>right){
+            for (int i = left; i < capacity; i++) {
+                System.out.print(items[i]);
+                System.out.print(" ");
+            }
+            for(int i=0;i<right;i++){
+                if(i==right-1){
+                    System.out.print(items[i]);
+                    break;
+                }
+                System.out.print(items[i]);
+                System.out.print(" ");
+            }
         }
-        //System.out.print
-        Node pointer = head.next;
-        for (int i = 0; i < size; i++) {
-            System.out.print(pointer.item);
-            System.out.print(" ");
-            pointer = pointer.next;
-        }
-        return; //optional
     }
 
     public T removeFirst() {
@@ -87,56 +88,37 @@ public class ArrayDeque<T> {
         if (isEmpty()) {
             return null;
         }
-        // (0 head) <-> (1) <-> (2) <-> (0 tail)
-        Node ret = head.next;
-        head.next.next.prev = head;
-        head.next = head.next.next;
-        //          (1)
-        //
-        // (0 head) <-> (2) <-> (0 tail)
-        size--;
-        return ret.item;
+        T res=items[left];
+        left=(left+1)%capacity;
+        if(isLowUsageRate())
+            resize((int) (capacity*0.5));
+        return res;
     }
 
     public T removeLast() {
         if (isEmpty()) {
             return null;
         }
-        Node ret = tail.prev;
-        // (0 head) <-> (1) <-> (2) <-> (0 tail)
-        tail.prev.prev.next = tail; // (1) -> (0 tail)
-        tail.prev = tail.prev.prev; // (1) <- (0 tail)
-        // (0 head) <-> (1) <-> (0 tail)
-        size--;
-        return ret.item;
+        right = (right - 1 + capacity) % capacity;
+        T res= items[right];
+        if(isLowUsageRate())
+            resize((int) (capacity*0.5));
+        return res;
+    }
+    private boolean isLowUsageRate() {
+        return capacity >= 16 && size() / (double) capacity < 0.25;
     }
 
     public T get(int index) { // iterative
-        if (index >= size) {
+        if (index >= size()|| isEmpty()||index<0) {
             return null;
         }
-        // (0 head) <-> (0) <-> (1) <-> (2) <-> (3) <-> (0 tail)
-        // get(1)
-        Node tmp = head; // (0)
-        for (int i = 0; i <= index; i++) {
-            tmp = tmp.next;
+        if(left<right)
+            return items[index+left];
+        else if(left>right){
+            return items[(index+left)%capacity];
         }
-        return tmp.item;
+        return null;
     }
 
-    public T getRecursion(int index) { // method List
-        if (index >= size) {
-            return null;
-        }
-        return helper(head.next, index);
-    }
-
-    private T helper(Node n, int index) {
-        // (0 head) <-> (0) <-> (0 tail)
-        // helper (head.next, 0)
-        if (index == 0) {
-            return n.item;
-        }
-        return helper(n.next, index-1);
-    }
 }
