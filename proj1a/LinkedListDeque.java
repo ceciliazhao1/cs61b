@@ -1,10 +1,10 @@
-public class LinkedListDeque {
+public class LinkedListDeque<T> {
     public class Node {
         public T item;
         public Node next;
         public Node prev;
 
-        public Node(T i, Node n, Node p) {
+        public Node(T i, LinkedListDeque<T>.Node n, LinkedListDeque<T>.Node p) {
             item = i;
             next = n;
             prev = p;
@@ -25,8 +25,8 @@ public class LinkedListDeque {
 
     public LinkedListDeque() {
         size = 0;
-        head = new Node(0, null, null); // (0) : head
-        tail = new Node(0, null, null); // (0) : tail
+        head = new Node(null, null, null); // (0) : head
+        tail = new Node(null, null, null); // (0) : tail
 
         head.next = tail; // (0 head) -> (0 tail)
         tail.prev = head; // (0 head) <- (0 tail)
@@ -37,7 +37,7 @@ public class LinkedListDeque {
         // addFirst(1)
         // (0 head) -> (1) -> (0 tail)
         size++;
-        Node node = new (item, head.next, head);
+        Node node = new Node(item, head.next, head);
         head.next.prev = node;
         head.next = node;
         //        (3)
@@ -84,25 +84,29 @@ public class LinkedListDeque {
         // (0 head) <-> (0 tail)
         if (isEmpty()) {
             return null;
-        } else {
-            // (0 head) <-> (1) <-> (2) <-> (0 tail)
-            head.next.next.prev = head;
-            head.next = head.next.next;
-            //          (1)
-            //
-            // (0 head) <-> (2) <-> (0 tail)
         }
+        // (0 head) <-> (1) <-> (2) <-> (0 tail)
+        Node ret = head.next;
+        head.next.next.prev = head;
+        head.next = head.next.next;
+        //          (1)
+        //
+        // (0 head) <-> (2) <-> (0 tail)
+        size--;
+        return ret.item;
     }
 
     public T removeLast() {
         if (isEmpty()) {
             return null;
-        } else {
-            // (0 head) <-> (1) <-> (2) <-> (0 tail)
-            tail.prev.prev.next = tail; // (1) -> (0 tail)
-            tail.prev = tail.prev.prev // (1) <- (0 tail)
-            // (0 head) <-> (1) <-> (0 tail)
         }
+        Node ret = tail.prev;
+        // (0 head) <-> (1) <-> (2) <-> (0 tail)
+        tail.prev.prev.next = tail; // (1) -> (0 tail)
+        tail.prev = tail.prev.prev; // (1) <- (0 tail)
+        // (0 head) <-> (1) <-> (0 tail)
+        size--;
+        return ret.item;
     }
 
     public T get(int index) { // iterative
@@ -133,5 +137,4 @@ public class LinkedListDeque {
         }
         return helper(n.next, index-1);
     }
-
 }
