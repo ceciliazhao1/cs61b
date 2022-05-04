@@ -45,7 +45,7 @@ public class ArrayDeque<T> {
     public void addFirst(T item) {
         if(isFull())
             resize((int)(capacity *1.5));
-        left=(left-1+capacity)/capacity;
+        left=(left-1+capacity)%capacity;
         items[left]=item;
     }
 

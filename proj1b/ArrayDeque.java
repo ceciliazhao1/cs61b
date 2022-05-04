@@ -1,5 +1,5 @@
-public class ArrayDeque<T> {
-        public T[] items;
+public class ArrayDeque<T> implements Deque<T> {
+        private T[] items;
         private int left;
         private int right;
         private int capacity = 8;
@@ -14,10 +14,12 @@ public class ArrayDeque<T> {
     public boolean isFull(){
         return size()==capacity-1;
     }
+    @Override
     public int size(){
         int size= (right-left+capacity)%capacity;
         return size;
     }
+    @Override
     public boolean isEmpty(){
         return left==right;
     }
@@ -41,14 +43,15 @@ public class ArrayDeque<T> {
         capacity=newcapacity;
 
     }
-
+    /** Adds an item of type T to the front of the deque. */
+    @Override
     public void addFirst(T item) {
         if(isFull())
             resize((int)(capacity *1.5));
-        left=(left-1+capacity)/capacity;
+        left=(left-1+capacity)%capacity;
         items[left]=item;
     }
-
+    @Override
     public void addLast(T item) {
         if(isFull())
             resize((int)(capacity *1.5));
@@ -82,7 +85,7 @@ public class ArrayDeque<T> {
             }
         }
     }
-
+    @Override
     public T removeFirst() {
         // (0 head) <-> (0 tail)
         if (isEmpty()) {
@@ -94,7 +97,7 @@ public class ArrayDeque<T> {
             resize((int) (capacity*0.5));
         return res;
     }
-
+    @Override
     public T removeLast() {
         if (isEmpty()) {
             return null;
@@ -108,7 +111,7 @@ public class ArrayDeque<T> {
     private boolean isLowUsageRate() {
         return capacity >= 16 && size() / (double) capacity < 0.25;
     }
-
+    @Override
     public T get(int index) { // iterative
         if (index >= size()|| isEmpty()||index<0) {
             return null;
