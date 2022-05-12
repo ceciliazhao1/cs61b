@@ -7,20 +7,20 @@ import java.util.Formatter;
  * @author P. N. Hilfinger, with some modifications by Josh Hug and melaniecebula
  *         [Do not modify this file.]
  */
-public class IntList {
+public class IntList { // Integer List
     /**
      * First element of list.
      */
-    public int first;
+    public int first; // value
     /**
      * Remaining elements of list.
      */
-    public IntList rest;
+    public IntList rest; // next
 
     /**
      * A List with first FIRST0 and rest REST0.
      */
-    public IntList(int first0, IntList rest0) {
+    public IntList(int first0, IntList rest0) { // first = 0, 
         first = first0;
         rest = rest0;
     }
@@ -55,6 +55,7 @@ public class IntList {
         IntList ptr = res;
         L = L.rest;
         while (L != null) {
+
             ptr.rest = new IntList(L.first * L.first, null);
             L = L.rest;
             ptr = ptr.rest;
@@ -65,6 +66,7 @@ public class IntList {
     /**
      * Returns a list equal to L with all elements squared. Non-destructive.
      */
+    // 0 -> 1 -> 2 -> 3
     public static IntList squareListRecursive(IntList L) {
         if (L == null) {
             return null;
@@ -81,8 +83,15 @@ public class IntList {
      */
 
     public static IntList dcatenate(IntList A, IntList B) {
-        //TODO:  fill in method
-        return null;
+        if(A==null)
+        return B;
+        IntList copy=A;
+        while(copy.rest!=null){
+            copy=copy.rest;
+        }
+        copy.rest=B;
+        return A;
+        
     }
 
     /**
@@ -90,8 +99,18 @@ public class IntList {
      * * elements of B.  May NOT modify items of A.  Use 'new'.
      */
     public static IntList catenate(IntList A, IntList B) {
-        //TODO:  fill in method
-        return null;
+        if(A==null)
+        return B;
+        IntList ans=new IntList(0,null);
+        IntList cur = ans;
+        IntList copy=A;
+        while(copy.rest!=null){
+            cur.rest=new IntList(copy.first,null); 
+            copy=copy.rest;
+            cur=cur.rest;
+        }
+        cur.rest=B;
+        return ans.rest;
     }
 
 
