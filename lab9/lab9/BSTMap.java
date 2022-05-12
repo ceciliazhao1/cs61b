@@ -19,9 +19,20 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         private Node left;
         private Node right;
 
-        private Node(K k, V v) {
-            key = k;
-            value = v;
+          /* Parent of this Node. */
+        private Node parent;
+
+        /* The color of this Node. */
+        private boolean color;
+
+        private Node(K key, V value, BSTMap<K, V>.Node left, BSTMap<K, V>.Node right,
+                BSTMap<K, V>.Node parent, boolean color) {
+            this.key = key;
+            this.value = value;
+            this.left = left;
+            this.right = right;
+            this.parent = parent;
+            this.color = color;
         }
     }
 
@@ -44,7 +55,16 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      *  or null if this map contains no mapping for the key.
      */
     private V getHelper(K key, Node p) {
-        throw new UnsupportedOperationException();
+        if (p == null) {
+            return null;
+        }
+        if (key.compareTo(p.key) < 0) {
+            return getHelper(key, p.left);
+        } else if (key.compareTo(p.key) > 0) {
+            return getHelper(key, p.right);
+        } else {
+            return p.value;
+        }
     }
 
     /** Returns the value to which the specified key is mapped, or null if this
@@ -52,14 +72,23 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public V get(K key) {
-        throw new UnsupportedOperationException();
+        return getHelper(key, root);
     }
 
     /** Returns a BSTMap rooted in p with (KEY, VALUE) added as a key-value mapping.
       * Or if p is null, it returns a one node BSTMap containing (KEY, VALUE).
      */
     private Node putHelper(K key, V value, Node p) {
-        throw new UnsupportedOperationException();
+        if (p == null) {
+            return null;
+        }
+        if (key.compareTo(p.key) < 0) {
+            return putHelper(key, value,p.left);
+        } else if (key.compareTo(p.key) > 0) {
+            return putHelper(key, value,p.right);
+        } else {
+            return p;
+        }
     }
 
     /** Inserts the key KEY
@@ -67,13 +96,161 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public void put(K key, V value) {
-        throw new UnsupportedOperationException();
+        Node node = new Node(key, value, null, null, null, BLACK);
+        put(node);
+        size++;
     }
+    private void put(Node node) {
+        int cmp;
+        Node x = this.root, y = null;
+
+        while (x != null) {
+            y = x;
+            cmp = node.key.compareTo(x.key);
+            if (cmp < 0) {
+                x = x.left;
+            } else {
+                x = x.right;
+            }
+        }
+        node.parent = y;
+        if (y != null) {
+            cmp = node.key.compareTo(y.key);
+            if (cmp < 0) {
+                y.left = node;
+            } else {
+                y.right = node;
+            }
+        } else {
+            this.root = node;
+        }
+
+        node.color = RED;
+
+        putFixUp(node);
+    }
+
+    private void putFixUp(Node node) {
+        Node parent, gparent;
+
+        // if parent is existed and parent's color is red
+        while (((parent = parentOf(node)) != null) && isRed(parent)) {
+            gparent = parentOf(parent);
+
+            // if parent is left child
+            if (parent == gparent.left) {
+                // Case 1: uncle is red
+                Node uncle = gparent.right;
+                if ((uncle != null) && isRed(uncle)) {
+                    setBlack(uncle);
+                    setBlack(parent);
+                    setRed(gparent);
+                    node = gparent;
+                    continue;
+                }
+
+                // Case 2: uncle is black and current node is right child
+                if (parent.right == node) {
+                    Node tmp;
+                    leftRotate(parent);
+                    tmp = parent;
+                    parent = node;
+                    node = tmp;
+                }
+
+                // Case 3: uncle is black and current node is left child
+                setBlack(parent);
+                setRed(gparent);
+                rightRotate(gparent);
+            } else { // if parent is right child
+                // Case 1: uncle is red
+                Node uncle = gparent.left;
+                if ((uncle != null) && isRed(uncle)) {
+                    setBlack(uncle);
+                    setBlack(parent);
+                    setRed(gparent);
+                    node = gparent;
+                    continue;
+                }
+
+                // Case 2: uncle is black and current node is left child
+                if (parent.left == node) {
+                    Node tmp;
+                    rightRotate(parent);
+                    tmp = parent;
+                    parent = node;
+                    node = tmp;
+                }
+
+                // Case 3: uncle is black and current node is right child
+                setBlack(parent);
+                setRed(gparent);
+                leftRotate(gparent);
+            }
+        }
+
+        // set root as black
+        setBlack(this.root);
+    }
+    private void leftRotate(Node x) {
+        Node y = x.right;
+
+        // Set x's right child as y's left child.
+        // Set the parent of y's left child as x if y's left child is not null.
+        x.right = y.left;
+        if (y.left != null) {
+            y.left.parent = x;
+        }
+
+        // Set y's parent as x's parent.
+        y.parent = x.parent;
+
+        if (x.parent == null) {
+            this.root = y; // x's parent is null, set y as root
+        } else {
+            if (x.parent.left == x) {
+                x.parent.left = y; // x is left child, set y as the left child of x's parent.
+            } else {
+                x.parent.right = y; // x is right child, set y as the right child of x's parent.
+            }
+        }
+
+        y.left = x;
+        x.parent = y;
+    }
+
+    private void rightRotate(Node x) {
+        Node y = x.left;
+
+        // Set x's left child as y's right child.
+        // Set the parent of y's right child as x if y's right child is not null.
+        x.left = y.right;
+        if (y.right != null) {
+            y.right.parent = x;
+        }
+
+        // Set y's parent as x's parent.
+        y.parent = x.parent;
+
+        if (x.parent == null) {
+            this.root = y; // x's parent is null, set y as root
+        } else {
+            if (x.parent.right == x) {
+                x.parent.right = y; // x is right child, set y as the right child of x's parent.
+            } else {
+                x.parent.left = y; // x is left child, set y as the left child of x's parent.
+            }
+        }
+
+        y.right = x;
+        x.parent = y;
+    }
+
 
     /* Returns the number of key-value mappings in this map. */
     @Override
     public int size() {
-        throw new UnsupportedOperationException();
+        return size;
     }
 
     //////////////// EVERYTHING BELOW THIS LINE IS OPTIONAL ////////////////
@@ -106,4 +283,47 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
     public Iterator<K> iterator() {
         throw new UnsupportedOperationException();
     }
+
+
+
+    private Node parentOf(Node node) {
+        return node != null ? node.parent : null;
+    }
+
+    private boolean colorOf(Node node) {
+        return node != null ? node.color : BLACK;
+    }
+
+    private boolean isRed(Node node) {
+        return ((node != null) && (node.color == RED)) ? true : false;
+    }
+
+    private boolean isBlack(Node node) {
+        return !isRed(node);
+    }
+
+    private void setBlack(Node node) {
+        if (node != null) {
+            node.color = BLACK;
+        }
+    }
+
+    private void setRed(Node node) {
+        if (node != null) {
+            node.color = RED;
+        }
+    }
+
+    private void setParent(Node node, Node parent) {
+        if (node != null) {
+            node.parent = parent;
+        }
+    }
+
+    private void setColor(Node node, boolean color) {
+        if (node != null) {
+            node.color = color;
+        }
+    }
 }
+
