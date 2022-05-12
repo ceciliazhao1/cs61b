@@ -3,8 +3,6 @@ public class ArrayDeque<T> implements Deque<T> {
         private int left;
         private int right;
         private int capacity = 8;
-
-
         
         public ArrayDeque() {
             items = (T[]) new Object[capacity];

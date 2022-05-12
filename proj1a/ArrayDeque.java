@@ -23,7 +23,7 @@ public class ArrayDeque<T> {
     }
 
     public void resize(int newcapacity){
-        T[] newarray=(T[]) new Object[capacity];
+        T[] newarray=(T[]) new Object[newcapacity];
         int size=size();
         if(left<right)
             for(int i=left,j=0;i<right && j<size;i++,j++)
