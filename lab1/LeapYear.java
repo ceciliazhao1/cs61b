@@ -1,5 +1,5 @@
 /** Class that determines whether or not a year is a leap year.
- *  @author 李兆轩的爸爸
+ *  @author cecilia
  */
 public class LeapYear {
 
@@ -15,14 +15,14 @@ public class LeapYear {
     }
 
     public static boolean isLeapYear(int year) {
-        if(year>=0){
+        if(year<0){
+            return false;
+        }else{
         if(year%4==0)
             return true;
         else
             return false;
         }
-        else
-            return false;
     }
 
     /** Must be provided an integer as a command line argument ARGS. */
