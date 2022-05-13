@@ -1,8 +1,6 @@
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-
-
 public class TestArrayDequeGold {
     @Test
     public void test() {
@@ -12,11 +10,7 @@ public class TestArrayDequeGold {
         StringBuilder msg = new StringBuilder();
 
         int s = 0;
-        for (int i = 0; i < 500; i ++) {
-            if (i % 5 == 0) {
-                msg.append("size()\n");
-                assertEquals(msg.toString(), ads.size(), sad.size());
-            }
+        for (int i = 0; i < 500; i++) {
             double selector = StdRandom.uniform();
             if (selector < 0.25) {
                 sad.addFirst(i);
@@ -56,4 +50,3 @@ public class TestArrayDequeGold {
         }
     }
 }
-
