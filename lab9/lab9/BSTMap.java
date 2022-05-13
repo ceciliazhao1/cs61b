@@ -96,7 +96,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public void put(K key, V value) {
-        Node node = new Node(key, value, null, null, null, BLACK);
+        Node node = new Node(key, value, null, null, null, false);
         put(node);
         size++;
     }
@@ -125,7 +125,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
             this.root = node;
         }
 
-        node.color = RED;
+        node.color = true;
 
         putFixUp(node);
     }
@@ -291,11 +291,11 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
     }
 
     private boolean colorOf(Node node) {
-        return node != null ? node.color : BLACK;
+        return node != null ? node.color : false;
     }
 
     private boolean isRed(Node node) {
-        return ((node != null) && (node.color == RED)) ? true : false;
+        return ((node != null) && (node.color == true)) ? true : false;
     }
 
     private boolean isBlack(Node node) {
@@ -304,13 +304,13 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
 
     private void setBlack(Node node) {
         if (node != null) {
-            node.color = BLACK;
+            node.color = true;
         }
     }
 
     private void setRed(Node node) {
         if (node != null) {
-            node.color = RED;
+            node.color = true;
         }
     }
 

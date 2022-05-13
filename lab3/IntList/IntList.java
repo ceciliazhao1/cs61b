@@ -20,7 +20,7 @@ public class IntList { // Integer List
     /**
      * A List with first FIRST0 and rest REST0.
      */
-    public IntList(int first0, IntList rest0) { // first = 0, 
+    public IntList(int first0, IntList rest0) { // first = 0,
         first = first0;
         rest = rest0;
     }
@@ -29,7 +29,7 @@ public class IntList { // Integer List
      * A List with null rest, and first = 0.
      */
     public IntList() {
-    /* NOTE: public IntList () { }  would also work. */
+        /* NOTE: public IntList () { }  would also work. */
         this(0, null);
     }
 
@@ -84,14 +84,14 @@ public class IntList { // Integer List
 
     public static IntList dcatenate(IntList A, IntList B) {
         if(A==null)
-        return B;
+            return B;
         IntList copy=A;
         while(copy.rest!=null){
             copy=copy.rest;
         }
         copy.rest=B;
         return A;
-        
+
     }
 
     /**
@@ -100,12 +100,12 @@ public class IntList { // Integer List
      */
     public static IntList catenate(IntList A, IntList B) {
         if(A==null)
-        return B;
+            return B;
         IntList ans=new IntList(0,null);
         IntList cur = ans;
         IntList copy=A;
         while(copy!=null){
-            cur.rest=new IntList(copy.first,null); 
+            cur.rest=new IntList(copy.first,null);
             copy=copy.rest;
             cur=cur.rest;
         }
