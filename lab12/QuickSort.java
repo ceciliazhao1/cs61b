@@ -47,13 +47,62 @@ public class QuickSort {
     private static <Item extends Comparable> void partition(
             Queue<Item> unsorted, Item pivot,
             Queue<Item> less, Queue<Item> equal, Queue<Item> greater) {
-        // Your code here!
+        for (Item item : unsorted) {
+            if (item.compareTo(pivot)>0) {
+                greater.enqueue(item);
+            }else if(item.compareTo(pivot)<0){
+                less.enqueue(item);
+            }else{
+                equal.enqueue(item);
+            }
+        }
     }
 
     /** Returns a Queue that contains the given items sorted from least to greatest. */
-    public static <Item extends Comparable> Queue<Item> quickSort(
-            Queue<Item> items) {
-        // Your code here!
-        return items;
+    public static <Item extends Comparable> Queue<Item> quickSort(Queue<Item> items) {
+        if (items.size() <= 1) {
+            return items;
+        }
+
+        Item pivot= getRandomItem(items);
+        Queue<Item> less=new Queue<Item> ();
+        Queue<Item> equal=new Queue<Item> ();
+        Queue<Item> greater=new Queue<Item> ();
+        partition(items, pivot, less, equal, greater);
+        Queue<Item> left= quickSort(less);
+        Queue<Item> right= quickSort(greater);
+        Queue<Item> new1 =catenate(left,equal);
+        Queue<Item> new2 = catenate(new1,right);
+        return new2;
+    }
+
+    public static void main(String[] args) {
+        Queue<String> students = new Queue<String>();
+        students.enqueue("Alice");
+        students.enqueue("Vanessa");
+        students.enqueue("Ethan");
+        students.enqueue("Andy");
+        students.enqueue("Cecilia");
+        students.enqueue("Bobo");
+        students.enqueue("Zoey");
+        students.enqueue("Yoyo");
+        System.out.println("original queue: " + students);
+        Queue<String> stunew = QuickSort.quickSort(students);
+        System.out.println("sorted queue: " + stunew);
+        System.out.println(students.size() == stunew.size());
+
+        Queue<Integer> ints = new Queue<>();
+        ints.enqueue(10);
+        ints.enqueue(5);
+        ints.enqueue(6);
+        ints.enqueue(4);
+        ints.enqueue(1);
+        ints.enqueue(7);
+        ints.enqueue(9);
+        ints.enqueue(3);
+        System.out.println("original queue: " + ints);
+        Queue<Integer> ints2 = QuickSort.quickSort(ints);
+        System.out.println("sorted queue: " + ints2);
+        System.out.println(ints.size() == ints2.size());
     }
 }

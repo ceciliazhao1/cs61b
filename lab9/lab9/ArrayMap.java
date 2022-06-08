@@ -95,8 +95,8 @@ public class ArrayMap<K, V> implements Map61B<K, V> {
         V returnValue = null;
         if (keyLocation > -1) {
             returnValue = values[keyLocation];
-            keys[keyLocation] = keys[size - 1];
-            values[keyLocation] = values[size - 1];
+            keys[keyLocation] = keys[size - 1];//最后一位补位，保证连续性
+            values[keyLocation] = values[size - 1];//最后一位补位
             size -= 1;
         }
         return returnValue;

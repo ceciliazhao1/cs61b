@@ -11,4 +11,5 @@ public interface WorldState {
     default boolean isGoal() {
         return estimatedDistanceToGoal() == 0;
     }
+
 }

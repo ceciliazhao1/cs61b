@@ -55,12 +55,16 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      *  or null if this map contains no mapping for the key.
      */
     private V getHelper(K key, Node p) {
+        if (key == null) {
+            throw new IllegalArgumentException("calls get() with a null key");
+        }
         if (p == null) {
             return null;
         }
-        if (key.compareTo(p.key) < 0) {
+        int cmp=key.compareTo(p.key);
+        if (cmp < 0) {
             return getHelper(key, p.left);
-        } else if (key.compareTo(p.key) > 0) {
+        } else if (cmp > 0) {
             return getHelper(key, p.right);
         } else {
             return p.value;
@@ -75,35 +79,24 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         return getHelper(key, root);
     }
 
-    /** Returns a BSTMap rooted in p with (KEY, VALUE) added as a key-value mapping.
-      * Or if p is null, it returns a one node BSTMap containing (KEY, VALUE).
-     */
-    private Node putHelper(K key, V value, Node p) {
-        if (p == null) {
-            return null;
-        }
-        if (key.compareTo(p.key) < 0) {
-            return putHelper(key, value,p.left);
-        } else if (key.compareTo(p.key) > 0) {
-            return putHelper(key, value,p.right);
-        } else {
-            return p;
-        }
-    }
 
     /** Inserts the key KEY
      *  If it is already present, updates value to be VALUE.
      */
     @Override
     public void put(K key, V value) {
+        if (key == null)
+            throw new IllegalArgumentException("calls put() with a null key");
+        //value 可以是null，可以是val
         Node node = new Node(key, value, null, null, null, false);
-        put(node);
+        puthelper(node);
         size++;
     }
-    private void put(Node node) {
+    private void puthelper(Node node) {
         int cmp;
         Node x = this.root, y = null;
-
+        if(x==null)
+            root=node;
         while (x != null) {
             y = x;
             cmp = node.key.compareTo(x.key);
@@ -121,9 +114,10 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
             } else {
                 y.right = node;
             }
-        } else {
+        }else{
             this.root = node;
         }
+
 
         node.color = true;
 
