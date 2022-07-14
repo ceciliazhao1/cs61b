@@ -7,7 +7,7 @@ import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestBinaryTrie {
-/* Uncomment when you are ready. 
+
     @Test
     public void bestPrefixMatchWithExactMatches() {
         System.out.println("Testing that bestPrefixMatch works with exact matches.");
@@ -19,15 +19,16 @@ public class TestBinaryTrie {
         frequencyTable.put('e', 6);
         BinaryTrie trie = new BinaryTrie(frequencyTable);
 
+
         BitSequence shouldBeA = new BitSequence("000");
         Match m = trie.longestPrefixMatch(shouldBeA);
         assertEquals((char) 'a', (char) m.getSymbol()); 
         assertEquals(shouldBeA, m.getSequence());
 
         BitSequence shouldBeE = new BitSequence("11");
-        m = trie.longestPrefixMatch(shouldBeE);
-        assertEquals((char) 'e', (char) m.getSymbol()); 
-        assertEquals(shouldBeE, m.getSequence());
+        Match m2 = trie.longestPrefixMatch(shouldBeE);
+        assertEquals((char) 'e', (char) m2.getSymbol());
+        assertEquals(shouldBeE, m2.getSequence());
     }
 
     @Test
@@ -76,7 +77,7 @@ public class TestBinaryTrie {
         BinaryTrie trie = new BinaryTrie(frequencyTable);
         Map<Character, BitSequence> yourTable = trie.buildLookupTable();
 
-        HashMap<Character, BitSequence> expected = new HashMap<Character, BitSequence>();
+        Map<Character, BitSequence> expected = new HashMap<Character, BitSequence>();
         expected.put('a', new BitSequence("000"));
         expected.put('b', new BitSequence("001"));
         expected.put('c', new BitSequence("01"));
@@ -88,5 +89,5 @@ public class TestBinaryTrie {
     public static void main(String[] args) {
         jh61b.junit.textui.runClasses(TestBinaryTrie.class);
     }    
-    */
+
 } 

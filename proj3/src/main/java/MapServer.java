@@ -131,8 +131,7 @@ public class MapServer {
         get("/route", (req, res) -> {
             HashMap<String, Double> params =
                     getRequestParams(req, REQUIRED_ROUTE_REQUEST_PARAMS);
-            route = Router.shortestPath(graph, params.get("start_lon"), params.get("start_lat"),
-                    params.get("end_lon"), params.get("end_lat"));
+            route = Router.shortestPath(graph, params.get("start_lon"), params.get("start_lat"),params.get("end_lon"), params.get("end_lat"));
             String directions = getDirectionsText();
             Map<String, Object> routeParams = new HashMap<>();
             routeParams.put("routing_success", !route.isEmpty());
@@ -205,11 +204,12 @@ public class MapServer {
     private static void writeImagesToOutputStream(Map<String, Object> rasteredImageParams,
                                                   ByteArrayOutputStream os) {
         String[][] renderGrid = (String[][]) rasteredImageParams.get("render_grid");
-        int numVertTiles = renderGrid.length;
-        int numHorizTiles = renderGrid[0].length;
+        int numVertTiles = renderGrid.length;//y0-5
+        int numHorizTiles = renderGrid[0].length;//x0-4
 
         BufferedImage img = new BufferedImage(numHorizTiles * MapServer.TILE_SIZE,
                 numVertTiles * MapServer.TILE_SIZE, BufferedImage.TYPE_INT_RGB);
+
         Graphics graphic = img.getGraphics();
         int x = 0, y = 0;
 
@@ -300,9 +300,7 @@ public class MapServer {
      * "name" : String, The actual name of the node. <br>
      * "id" : Number, The id of the node. <br>
      */
-    public static List<Map<String, Object>> getLocations(String locationName) {
-        return new LinkedList<>();
-    }
+    public static List<Map<String, Object>> getLocations(String locationName) {return new LinkedList<>();}
 
     /**
      * Validates that Rasterer has returned a result that can be rendered.
@@ -329,7 +327,7 @@ public class MapServer {
      * Takes the route of this MapServer and converts it into an HTML friendly
      * String to be passed to the frontend.
      */
-    private static String getDirectionsText() {
+    public static String getDirectionsText() {
         List<Router.NavigationDirection> directions = Router.routeDirections(graph, route);
         if (directions == null || directions.isEmpty()) {
           return "";

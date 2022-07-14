@@ -1,6 +1,6 @@
 package lab11.graphs;
 import java.util.Comparator;
-import java.util.PriorityQueue;
+import edu.princeton.cs.algs4.MinPQ;
 
 /**
  *  @author Josh Hug
@@ -10,20 +10,11 @@ public class MazeAStarPath extends MazeExplorer {
     private int t;
     private int targetX, targetY;
 
-
-    private class Node {
-        private int v;
-        private int priority;
-
-        public Node(int v) {
-            this.v = v;
-            this.priority = distTo[v] + h(v);
-        }
-    }
-    private class NodeComparator implements Comparator<Node> {
+    private MinPQ<Integer> pq = new MinPQ<>(new NodeComparator());
+    private class NodeComparator implements Comparator<Integer> {
         @Override
-        public int compare(Node o1, Node o2) {
-            return o1.priority - o2.priority;
+        public int compare(Integer o1, Integer o2) {
+            return distTo[o1] + h(o1) - (distTo[o2] + h(o2));
         }
     }
 
@@ -53,23 +44,24 @@ public class MazeAStarPath extends MazeExplorer {
 
     /** Performs an A star search from vertex s. */
     private void astar(int s) {
-        PriorityQueue<Node> pq = new PriorityQueue<>(new NodeComparator());
-        Node curNode = new Node(s);
-        pq.add(curNode);
+
+        pq.insert(s);
         marked[s] = true;
-        while (!pq.isEmpty()) {
-            curNode = pq.poll();
-            for (int w : maze.adj(curNode.v)) {
+
+        while (true) {
+            int v = pq.delMin();
+            marked[v] = true;
+            announce();
+
+            if (v == t) {
+                return;
+            }
+
+            for (int w : maze.adj(v)) {
                 if (!marked[w]) {
-                    marked[w] = true;
-                    edgeTo[w] = curNode.v;
-                    distTo[w] = distTo[curNode.v] + 1;
-                    announce();
-                    if (w == t) {
-                        return;
-                    } else {
-                        pq.add(new Node(w));
-                    }
+                    pq.insert(w);
+                    edgeTo[w] = v;
+                    distTo[w] = distTo[v] + 1;
                 }
             }
         }

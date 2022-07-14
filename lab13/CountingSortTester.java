@@ -51,6 +51,8 @@ public class CountingSortTester {
     public void testBetterWithSomeNegative() {
         int[] sortedSomeNegative = CountingSort.betterCountingSort(someNegative);
         assertIsSorted(sortedSomeNegative);
+        for(int i: sortedSomeNegative)
+            System.out.println(i);
     }
 
 

@@ -1,3 +1,4 @@
+import example.CSCourseDB;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -6,7 +7,8 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.util.ArrayList;
+import java.util.*;
+
 
 /**
  * Graph for storing all of the intersection (vertex) and road (edge) information.
@@ -20,6 +22,9 @@ import java.util.ArrayList;
 public class GraphDB {
     /** Your instance variables for storing the graph. You should consider
      * creating helper classes, e.g. Node, Edge, etc. */
+    public HashMap<Long, List<Node>> adj = new HashMap<>();    // adjacency lists
+    //list里面放入node自己0号,其他是在同一条路上的node
+    private final Map<Long, Way> ways = new HashMap<>();
 
     /**
      * Example constructor shows how to create and start an XML parser.
@@ -57,7 +62,11 @@ public class GraphDB {
      *  we can reasonably assume this since typically roads are connected.
      */
     private void clean() {
-        // TODO: Your code here.
+        for (Long id : vertices()) {
+            if (adj.get(id).size() == 1) {
+                adj.remove(id);
+            }
+        }
     }
 
     /**
@@ -66,7 +75,9 @@ public class GraphDB {
      */
     Iterable<Long> vertices() {
         //YOUR CODE HERE, this currently returns only an empty list.
-        return new ArrayList<Long>();
+        List<Long> verticesIter = new ArrayList<>();
+        verticesIter.addAll(adj.keySet());
+        return verticesIter;
     }
 
     /**
@@ -75,7 +86,14 @@ public class GraphDB {
      * @return An iterable of the ids of the neighbors of v.
      */
     Iterable<Long> adjacent(long v) {
-        return null;
+
+        List<Long> verticesIter = new ArrayList<>();
+        List<Node> node= adj.get(v);
+
+        for(int i=0;i<node.size();i++){
+            verticesIter.add(node.get(i).id);
+        }
+        return verticesIter;
     }
 
     /**
@@ -136,7 +154,22 @@ public class GraphDB {
      * @return The id of the node in the graph closest to the target.
      */
     long closest(double lon, double lat) {
-        return 0;
+        double closet = Double.MAX_VALUE;
+        long vertex = 0;
+
+        for (Long v : vertices()) {
+            double nodeLon = getNode(v).lon;
+            double nodeLat = getNode(v).lat;
+            double lonDist = nodeLon - lon;
+            double latDist = nodeLat - lat;
+            double dist = Math.sqrt(lonDist * lonDist + latDist * latDist);
+            if (dist < closet) {
+                vertex = v;
+                closet = dist;
+            }
+        }
+        return vertex;
+
     }
 
     /**
@@ -145,7 +178,7 @@ public class GraphDB {
      * @return The longitude of the vertex.
      */
     double lon(long v) {
-        return 0;
+        return getNode(v).lon;
     }
 
     /**
@@ -154,6 +187,97 @@ public class GraphDB {
      * @return The latitude of the vertex.
      */
     double lat(long v) {
-        return 0;
+        return getNode(v).lat;
     }
+    public class Node implements Comparable<Node> {
+        Long id;
+        double lon;
+        double lat;
+        String name;
+        double priority;
+        List<Long> wayIds;//存way的id，一个node可以经过很多way
+
+        Node(Long id, double lon, double lat) {
+            this.id = id;
+            this.lon = lon;
+            this.lat = lat;
+            name=null;
+            wayIds=new ArrayList<>();
+        }
+        public long getid() {
+            return this.id;
+        }
+
+        public void setPriority(double prt) {
+            this.priority = prt;
+        }
+
+        @Override
+        public int compareTo(Node n) {
+            if (this.priority<n.priority) {
+                return -1;
+            }
+            else if (this.priority>n.priority) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+
+    }
+    public List<Long> getWaysInNode(long nodeId) {
+        return getNode(nodeId).wayIds;
+    }
+    Node getNode(long id) {
+        return adj.get(id).get(0);
+    }
+    void addWay(Way lastway,List<Long> nodesofway) {
+        for (int i = 0; i <= nodesofway.size() - 2; i++) {
+            addEdge(nodesofway.get(i), nodesofway.get(i + 1));
+        }//0-1，1-2，2-3，3-4
+        ways.put(lastway.id, lastway);
+    }
+    void addEdge(Long id1, Long id2){
+        double lon1 = adj.get(id1).get(0).lon;
+        double lat1 = adj.get(id1).get(0).lat;
+        double lon2 = adj.get(id2).get(0).lon;
+        double lat2 = adj.get(id2).get(0).lat;
+        adj.get(id1).add(new Node(id2, lon2, lat2));
+        adj.get(id2).add(new Node(id1, lon1, lat1));
+    }
+    void addNode(long id, double lon, double lat) {
+        List<Node> adjList = new ArrayList<>();
+        adjList.add(new Node(id, lon, lat));
+        adj.put(id, adjList);
+    }
+    void removeNode(Long id) { adj.remove(id); }//clean limian
+
+    void removeEdge(long id1, long id2) {
+        adj.get(id1).remove(getNode(id2));
+        adj.get(id2).remove(getNode(id1));
+    }
+
+    public static class Way {
+        Long id;
+        LinkedList<Long> edges;
+        String name;
+        String maxSpeed;
+
+        Way(Long id) {
+            this.id = id;
+            this.edges = new LinkedList<>();
+            this.name = null;
+            this.maxSpeed = "";
+        }
+    }
+    Iterable<Long> ways() {
+        //YOUR CODE HERE, this currently returns only an empty list.
+        return ways.keySet();
+    }
+    public String getWayName(long wayId) {//map<id,way>
+        return ways.get(wayId).name;
+    }
+
+
+
 }

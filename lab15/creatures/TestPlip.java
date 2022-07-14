@@ -36,11 +36,16 @@ public class TestPlip {
 
     @Test
     public void testReplicate() {
+        Plip p = new Plip(2);
+        assertEquals(2, p.energy(), 0.01);
+        assertEquals(new Color(99, 255, 76), p.color());
+
+        assertNotSame("not same is true",p.replicate(),p);
 
     }
 
-    //@Test
-    public void testChoose() {
+    @Test
+    public void testChoose1() {
         Plip p = new Plip(1.2);
         HashMap<Direction, Occupant> surrounded = new HashMap<Direction, Occupant>();
         surrounded.put(Direction.TOP, new Impassible());
@@ -56,6 +61,45 @@ public class TestPlip {
         Action expected = new Action(Action.ActionType.STAY);
 
         assertEquals(expected, actual);
+
+    }
+    @Test
+    public void testChoose2() {
+        Plip a = new Plip(1.2);
+        HashMap<Direction, Occupant> surroundeda = new HashMap<Direction, Occupant>();
+        surroundeda.put(Direction.TOP, new Impassible());
+        surroundeda.put(Direction.BOTTOM, new Impassible());
+        surroundeda.put(Direction.LEFT, new Impassible());
+        surroundeda.put(Direction.RIGHT, new Empty());
+
+        //You can create new empties with new Empty();
+        //Despite what the spec says, you cannot test for Cloruses nearby yet.
+        //Sorry!
+
+        Action actuala = a.chooseAction(surroundeda);
+        Action expecteda = new Action(Action.ActionType.REPLICATE,Direction.RIGHT);
+
+        assertEquals(expecteda, actuala);
+    }
+    @Test
+    public void testChoose3() {
+        Plip a = new Plip(0.5);
+        HashMap<Direction, Occupant> surroundeda = new HashMap<Direction, Occupant>();
+        surroundeda.put(Direction.TOP, new Empty());
+        surroundeda.put(Direction.BOTTOM, new Impassible());
+        surroundeda.put(Direction.LEFT, new Impassible());
+        surroundeda.put(Direction.RIGHT, new Clorus());
+
+        //You can create new empties with new Empty();
+        //Despite what the spec says, you cannot test for Cloruses nearby yet.
+        //Sorry!
+
+        Action actuala = a.chooseAction(surroundeda);
+        Action expecteda = new Action(Action.ActionType.MOVE,Direction.TOP);
+        Action expected2 = new Action(Action.ActionType.STAY);
+        boolean expectedB = expecteda.equals(actuala) || expected2.equals(actuala);
+        assertTrue(expectedB);
+
     }
 
     public static void main(String[] args) {

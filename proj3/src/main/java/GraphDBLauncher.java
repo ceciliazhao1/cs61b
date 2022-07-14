@@ -14,7 +14,6 @@ public class GraphDBLauncher {
 
         Iterable<Long> verticesIterable = g.vertices();
 
-        /* Convert iterable to a list. */
         List<Long> vertices = new ArrayList<Long>();
         for (long v : verticesIterable) {
             vertices.add(v);
@@ -33,6 +32,25 @@ public class GraphDBLauncher {
         System.out.print("The vertex number closest to -122.258207, 37.875352 is " + v + ", which");
         System.out.println(" has longitude, latitude of: " + g.lon(v) + ", " + g.lat(v));
 
-        System.out.println("To get started, uncomment print statements in GraphBuildingHandler.");
+        List<Long> route = Router.shortestPath(g, -122.23354274523257,
+        37.87383979834944,
+                -122.2330727257024,
+        37.86020837234193);
+
+        for(Long id: route){
+            System.out.println(id);
+        }
+        List<Router.NavigationDirection> directions = Router.routeDirections(g, route);
+        if (directions == null || directions.isEmpty()) {
+            System.out.println("none");
+        }
+        StringBuilder sb = new StringBuilder();
+        int step = 1;
+        for (Router.NavigationDirection d: directions) {
+            sb.append(String.format("%d. %s <br>", step, d));
+            step += 1;
+        }
+        System.out.println(sb.toString());
+
     }
 }

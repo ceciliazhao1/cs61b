@@ -6,10 +6,10 @@ import java.util.Observable;
  * @author Josh Hug
  */
 public abstract class MazeExplorer extends Observable {
-    protected int[] distTo;
-    protected int[] edgeTo;
-    protected boolean[] marked;
-    protected Maze maze;
+    public int[] distTo;
+    public int[] edgeTo;
+    public boolean[] marked;
+    public Maze maze;
 
 
     /**

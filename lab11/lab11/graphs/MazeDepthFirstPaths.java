@@ -27,7 +27,9 @@ public class MazeDepthFirstPaths extends MazeExplorer {
     private void dfs(int s) {
         marked[s] = true;
         announce();
-
+        //whenever you call announce, it will draw the contents of your MazeExplorer’s
+        //marked, distTo, and edgeTo arrays. Make sure to call the announce method any
+        // time you want the drawing to be updated.
         if (s == t) {
             targetFound = true;
         }

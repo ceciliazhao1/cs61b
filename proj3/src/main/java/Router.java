@@ -2,6 +2,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class provides a shortestPath method for finding routes between two points
@@ -23,9 +25,51 @@ public class Router {
      * @param destlat The latitude of the destination location.
      * @return A list of node id's in the order visited on the shortest path.
      */
+    //用到的数据结构是HashMap<Long, List<Node>> adj = new HashMap<>();list里面放入node自己0号,其他是在同一条路上的node
     public static List<Long> shortestPath(GraphDB g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        return null; // FIXME
+        PriorityQueue<GraphDB.Node>fringe=new PriorityQueue<>();
+        HashMap<Long,Double> disTo= new HashMap<>();
+        HashMap<Long, Long> edgeTo = new HashMap<>();
+        for(Long c:g.vertices()){
+            disTo.put(c,Double.MAX_VALUE);
+        }
+        Long startnode=g.closest(stlon,stlat);
+        Long endnode=g.closest(destlon,destlat);
+
+        g.getNode(startnode).setPriority(0.0);
+        disTo.remove(startnode);
+        disTo.put(startnode,0.0);
+
+        fringe.add(g.getNode(startnode));
+
+        while(!fringe.isEmpty()){
+            startnode=fringe.poll().getid();
+            if(startnode==endnode) break;
+            for( Long v:g.adjacent(startnode)){
+                if(v==startnode) continue;
+                double dis=disTo.get(startnode)+g.distance(startnode,v);
+                GraphDB.Node node= g.getNode(v);
+                if(dis<disTo.get(v)) {
+                    disTo.put(v, dis);
+                    node.setPriority(dis+g.distance(v,endnode));
+                    edgeTo.put(v, startnode);
+                    if (fringe.contains(node)) {//priority变化了，所以node需要移出再放入
+                        fringe.remove(node);
+                        fringe.add(node);
+                    } else {
+                        fringe.add(node);
+                    }
+                }
+            }
+        }
+
+        LinkedList<Long> path = new LinkedList<>();
+        path.add(endnode);
+        for(Long edge=edgeTo.get(endnode);edge!=null;edge=edgeTo.get(edge)){
+            path.addFirst(edge);
+        }
+        return path;
     }
 
     /**
@@ -37,10 +81,80 @@ public class Router {
      * route.
      */
     public static List<NavigationDirection> routeDirections(GraphDB g, List<Long> route) {
-        return null; // FIXME
+        // FIXME
+        List<NavigationDirection> res = new ArrayList<>();
+        NavigationDirection cur = new NavigationDirection();
+        cur.direction = NavigationDirection.START;//=0
+        cur.way = getWayName(g, route.get(0), route.get(1));//两个点确定一个wayname
+        cur.distance += g.distance(route.get(0), route.get(1));
+        for (int i = 1, j = 2; j < route.size(); i++, j++) {
+            if (!getWayName(g, route.get(i), route.get(j)).equals(cur.way)) {
+                res.add(cur);//当这两点确定的路名和之前的name不同的时候，发生转弯，于是加入之前的cur；重新new cur，计算name，角度和distance
+                cur = new NavigationDirection();
+                cur.way = getWayName(g, route.get(i), route.get(j));
+
+                double prevBearing = g.bearing(route.get(i - 1), route.get(i));
+                double curBearing = g.bearing(route.get(i), route.get(j));
+                cur.direction = convertBearingToDirection(prevBearing, curBearing);
+                //因为j=i+1，和i是现在这条路；而i和i-1是之前一条路
+                cur.distance += g.distance(route.get(i), route.get(j));
+                continue;
+            }
+            if (getWayName(g, route.get(i), route.get(j)).equals(cur.way))//name相同的情况下，只增加distance
+                cur.distance += g.distance(route.get(i), route.get(j));
+        }
+        res.add(cur);//最后一条路需要add
+        return res;
     }
 
+    /**
+     * two node can and only can decide a way, if this way has no name, return black String.
+     */
+    //List<Long> wayIds存way的id，一个node可以经过很多way
+    private static String getWayName(GraphDB g, long node1, long node2) {
+        String noName = "";
 
+        List<Long> ways1 = g.getWaysInNode(node1);
+        List<Long> ways2 = g.getWaysInNode(node2);
+
+        // intersection
+        List<Long> intersection =
+                ways1.stream().filter(ways2::contains).collect(Collectors.toList());
+
+        if (!intersection.isEmpty()) {
+            if (g.getWayName(intersection.get(0)) == null) {//Map<Long, Way> ways = new HashMap<>();存id和way，way里有name
+                return noName;
+            } else {
+                return g.getWayName(intersection.get(0));
+            }
+        }
+
+        return noName;
+    }
+    private static int convertBearingToDirection(double prevBearing, double curBearing) {
+        double relativeBearing = curBearing - prevBearing;
+        if (relativeBearing > 180) {
+            relativeBearing -= 360;
+        } else if (relativeBearing < -180) {
+            relativeBearing += 360;
+        }
+
+        if (relativeBearing < -100) {
+            return NavigationDirection.SHARP_LEFT;
+        } else if (relativeBearing < -30) {
+            return NavigationDirection.LEFT;
+        } else if (relativeBearing < -15) {
+            return NavigationDirection.SLIGHT_LEFT;
+        } else if (relativeBearing < 15) {
+            return NavigationDirection.STRAIGHT;
+        } else if (relativeBearing < 30) {
+            return NavigationDirection.SLIGHT_RIGHT;
+        } else if (relativeBearing < 100) {
+            return NavigationDirection.RIGHT;
+        } else {
+            return NavigationDirection.SHARP_RIGHT;
+        }
+    }
     /**
      * Class to represent a navigation direction, which consists of 3 attributes:
      * a direction to go, a way, and the distance to travel for.
@@ -160,4 +274,5 @@ public class Router {
             return Objects.hash(direction, way, distance);
         }
     }
+
 }
